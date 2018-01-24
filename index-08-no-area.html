@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Life Chart using D3js</title>
+        <link rel="stylesheet" href="main.css">
+        <script src="https://d3js.org/d3.v4.js"></script>
+    </head>
+
+    <body>
+        <h1>Life Chart using D3js</h1>
+
+        <script>
+            class LifeChart {
+                constructor() {
+                    let self = this;
+
+                    this.timeframe = 60 * 1000;
+                    this.width = 600;
+                    this.height = 300;
+
+                    this.margin = {
+                        top: 10,
+                        bottom: 30,
+                        left: 50,
+                        right: 10
+                    };
+
+                    this.chart = {
+                        width: this.width - this.margin.left - this.margin.right,
+                        height: this.height - this.margin.top - this.margin.bottom
+                    };
+
+                    this.$svg = d3.select("body").append("svg")
+                        .attr("id", "chart")
+                        .attr("width", this.width)
+                        .attr("height", this.height);
+
+                    this.$chart = this.$svg.append("svg")
+                        .classed("chart", true)
+                        .attr("width", this.chart.width)
+                        .attr("height", this.chart.height)
+                        .attr("transform", `translate(${this.margin.left},${this.margin.top})`)
+
+                    this.initData();
+                }
+
+                initData() {
+                    this.data = [];
+                    let now = new Date();
+
+                    for (var i=55; i>=0; i--) {
+                        this.data.push({
+                            value: Math.random() * 100, date: new Date(now - i * 1000)
+                        });
+                    }
+                }
+
+                plot() {
+                    let self = this;
+
+                    let to = new Date();
+                    let from = new Date(to - this.timeframe);
+ 
+                    this.x = d3.scaleTime()
+                        .domain([from, to])
+                        .range([0, this.chart.width]);
+
+                    this.y = d3.scaleLinear()
+                        .domain([0,100])
+                        .range([this.chart.height, 0]);
+
+                    this.line = d3.line()
+                        .curve(d3.curveMonotoneX)
+                        .x(function(d) {return self.x(d.date)})
+                        .y(function(d) {return self.y(d.value)})
+
+                    this.plotAxis();
+                    this.plotGraph();
+                }
+
+                plotAxis() {
+                    this.xAxis = d3.axisBottom()
+                        .scale(this.x)
+                        .tickFormat(d3.timeFormat("%H:%M:%S"));
+
+                    this.$svg.append("g")
+                        .classed("x axis", true)
+                        .attr("transform", `translate(${this.margin.left},${(this.margin.top + this.chart.height)})`)
+                        .call(this.xAxis);
+
+                    this.yAxis = d3.axisLeft()
+                        .scale(this.y);
+
+                    this.$svg.append("g")
+                        .classed("y axis", true)
+                        .attr("transform", `translate(${this.margin.left},${this.margin.top})`)
+                        .call(this.yAxis);
+                }
+
+                plotGraph() {
+                    let self = this;
+
+                    this.$chart.selectAll(".point")
+                        .data(this.data)
+                        .enter()
+                            .append("circle")
+                            .classed("point", true)
+                            .attr("r", 2)
+                            .attr("cx", function(d) {return self.x(d.date)})
+                            .attr("cy", function(d) {return self.y(d.value)});
+
+                    this.$chart.selectAll(".line")
+                        .data([this.data])
+                        .enter()
+                            .append("path")
+                            .classed("line", true)
+                            .attr("d", function(d) {return self.line(d)});
+                }
+            }
+
+            let chart = new LifeChart();
+            chart.plot();
+        </script>
+    </body>
+</html>

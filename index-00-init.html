@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Life Chart using D3js</title>
+        <link rel="stylesheet" href="main.css">
+        <script src="https://d3js.org/d3.v4.js"></script>
+    </head>
+
+    <body>
+        <h1>Life Chart using D3js</h1>
+
+        <script>
+            class LifeChart {
+                constructor() {
+                    let self = this;
+
+                    this.timeframe = 60 * 1000;
+                    this.width = 600;
+                    this.height = 300;
+
+                    this.margin = {
+                        top: 10,
+                        bottom: 30,
+                        left: 50,
+                        right: 10
+                    };
+
+                    this.chart = {
+                        width: this.width - this.margin.left - this.margin.right,
+                        height: this.height - this.margin.top - this.margin.bottom
+                    };
+
+                    this.initData();
+                }
+
+                initData() {
+                    this.data = [];
+                    let now = new Date();
+
+                    for (var i=55; i>=0; i--) {
+                        this.data.push({
+                            value: Math.random() * 100, date: new Date(now - i * 1000)
+                        });
+                    }
+                }
+            }
+
+            let chart = new LifeChart();
+        </script>
+    </body>
+</html>
